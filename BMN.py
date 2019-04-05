@@ -67,42 +67,46 @@ class BMNdata():
         if indicesTable != []:
             
             indices = indicesTable.findChildren("tr" , recursive=False)
-        
-            for indice in indices:
-                #dont take first row
-                if indice not in ('td'):
-                    continue
+            
+            
+            #skip first row
+            iterindex = iter(indices)
+            next(iterindex)
+                    
+            for indice in iterindex:
+                
+                data = indice.find_all("td")
             
                 # Nombres            
-                nombre = indice.find_all()('td')[0].text
+                nombre = data[0].text
                 nombres.append(nombre)
                 
                 # Anteriores
-                anterior = indice.find_all()('td')[2].text
+                anterior = data[1].text
                 anteriores.append(anterior)
 
                 # Ultimos
-                ultimo = indice.find_all()('td')[3].text
+                ultimo = data[2].text
                 ultimos.append(ultimo)
 
                 # Difs
-                dif = indice.find_all()('td')[4].text
+                dif = data[3].text
                 difs.append(dif)
 
                 # Maximos
-                maximo = indice.find_all()('td')[5].text
+                maximo = data[4].text
                 maximos.append(maximo)
 
                 # Minimos
-                minimo = indice.find_all()('td')[6].text
+                minimo = data[5].text
                 minimos.append(minimo)
 
                 # Fechas
-                fecha = indice.find_all()('td')[7].text
+                fecha = data[6].text
                 fechas.append(fecha)
 
                 # Horas
-                hora = indice.find_all()('td')[8].text
+                hora = data[7].text
                 horas.append(hora)
         
         cols = ['Nombres', 'Anteriores', 'Ultimos', 'Difs', 'Maximos', 'Minimos', 'Fechas', 'Horas']
@@ -112,7 +116,7 @@ class BMNdata():
         df = pd.DataFrame({'Nombres': nombres,
                            'Anteriores': anteriores,
                            'Ultimos': ultimos,
-                           'Difs': difs,
+                           '% Difs': difs,
                            'Maximos': maximos,
                            'Minimos': minimos,
                            'Fechas': fechas,
