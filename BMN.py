@@ -116,7 +116,7 @@ class BMNdata():
         df = pd.DataFrame({'Nombres': nombres,
                            'Anteriores': anteriores,
                            'Ultimos': ultimos,
-                           '% Difs': difs,
+                           'Difs': difs,
                            'Maximos': maximos,
                            'Minimos': minimos,
                            'Fechas': fechas,
