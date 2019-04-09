@@ -3,7 +3,7 @@ Created on 4 abr. 2019
 
 @author: Youness & Mario
 '''
-# Importamos librerias necesarias
+# Import Libraries
 import requests
 from bs4 import BeautifulSoup
 import time
@@ -11,11 +11,13 @@ import datetime as dt
 import re
 import pandas as pd
 from requests import get
+import datetime
 
 class BMNdata():
     
     # Constants
     URL_BASE = "http://www.bolsamadrid.es/esp/aspx/Indices/Resumen.aspx"
+    URL_BASE_ROBOT = "http://www.bolsamadrid.es/robot.txt"
     DELAY = 10
     TIMEOUT = 20
     
@@ -24,34 +26,35 @@ class BMNdata():
         Iniciliza la clase BMNdata a partir de una lista de variables objetivo
         ejecutando el webscrapping de los datos en bolsamadrid.es
         """
-        # inicializamos la variable interna tlast (ultima request, solicitada)
+        # Timeout init 
         self._tlast = time.clock()
+        date = datetime.date.today().strftime("%Y_%B_%d_%I_%M_%p")
+        date = date.replace(",", "_")
         
-        # Creamos el nombre del fichero csv
-        self._filename = 'data/BMN_.csv'
+        # Create csv output file
+        self._filename = 'data/BMN_' +date+'_.csv'
         
-            
-        # Ejecutamos web scraping
-        ret = self.__execute()
+        # Check robot.txt file
+        if self.does_url_exist(self.URL_BASE_ROBOT) == False:
+            #launch webScraping
+            self.__execute()
         
-        # Creamos la soup
-        html_soup = BeautifulSoup(ret.text, 'html.parser')
+    #check if exists robot.txt    
+    def does_url_exist(self, url):
+        try: 
+            r = requests.head(url)
+            if r.status_code < 400:
+                return True
+            else:
+                print("Robot file don t exist {}.".format(url))
+                return False
+        except requests.exceptions.RequestException as e:
+            print(e)
         
-        indicesTable = html_soup.find('table', class_="TblPort")
-        
-        
-        df = self.__getDataframe(indicesTable)
-        
-        df.to_csv(self._filename)
-    
-    
         
     def __getDataframe(self, indicesTable):
         """
-        Devuelve un dataframe de pandas a partir de una tabla de datos en formato
-        de texto plano con separador de ;
-        
-        Es el tipo de formato de origen 2
+        Return dataFrame with data
         """
         
          # setting up the lists that will form our dataframe with all the results
@@ -68,13 +71,12 @@ class BMNdata():
             
             indices = indicesTable.findChildren("tr" , recursive=False)
             
-            
             #skip first row
             iterindex = iter(indices)
             next(iterindex)
                     
             for indice in iterindex:
-                
+    
                 data = indice.find_all("td")
             
                 # Nombres            
@@ -112,7 +114,7 @@ class BMNdata():
         cols = ['Nombres', 'Anteriores', 'Ultimos', 'Difs', 'Maximos', 'Minimos', 'Fechas', 'Horas']
         
         
-        # Inicializamos el df
+        # Init dataframe
         df = pd.DataFrame({'Nombres': nombres,
                            'Anteriores': anteriores,
                            'Ultimos': ultimos,
@@ -123,31 +125,44 @@ class BMNdata():
                            'Horas': horas})[cols]
         
         return df
-        
+    
     def __execute(self):
+        
+        # Launch Webscraping
+        ret = self.__launchWebScraping()
+        
+        # Create soup
+        html_soup = BeautifulSoup(ret.text, 'html.parser')
+        
+        # Get interest table
+        indicesTable = html_soup.find('table', class_="TblPort")
+        
+        # Parse xml to dataFrame
+        df = self.__getDataframe(indicesTable)
+        
+        # Save dataFrame into file
+        print("Creating " + self._filename + " file..." )
+        df.to_csv(self._filename)
+
+    def __launchWebScraping(self):
         """
-        Ejecuta el WebScraping
+        Launching WebScraping with spicific agent and timeout
         """
         
-         # Configuramos la url destino
-        #url = self.URL_BASE + var + '/'
+        # Settinh url
         url = self.URL_BASE
         
         try:
-            # Realizamos la request con 20s de timeout y headers personalizados
-           # headers = ({'User-Agent':
-            #'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36'})
+            # launche request for spicific timeout
+            headers = ({'User-Agent':
+            'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36'})
             
-            #responseI = get(url, headers=headers)
+            html =  requests.get(url, headers=headers, timeout = self.TIMEOUT)
             
-            #html_soup = BeautifulSoup(responseI.text, 'html.parser')
-            #fixed_htmlI = html_soup.prettify()
-            html = requests.get(url, timeout = self.TIMEOUT)
-            
-            #  Actualizamos el tiempo de ultima request solicitada a la web
+            #  Set last time with current time
             self._tlast = time.clock()
             
-            # Comprobamos que el status de la request sea 200 y devolvemos con warning si no es así
+            # Check request status to detect connection failed
             if html.status_code != 200:
                 print("STATUS CODE {} on {}. Check it out.".format(html.status_code,url))
             else:
