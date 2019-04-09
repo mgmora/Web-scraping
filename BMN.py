@@ -21,18 +21,26 @@ class BMNdata():
     DELAY = 10
     TIMEOUT = 20
     
-    def __init__(self):
+    def __init__(self, start_date='2019-04-09', end_date='2019-05-01'):
         """
         Iniciliza la clase BMNdata a partir de una lista de variables objetivo
         ejecutando el webscrapping de los datos en bolsamadrid.es
         """
         # Timeout init 
         self._tlast = time.clock()
-        date = datetime.date.today().strftime("%Y_%B_%d_%I_%M_%p")
-        date = date.replace(",", "_")
+        #date = datetime.date.today().strftime("%Y_%B_%d_%I_%M_%p")
+        #date = date.replace(",", "_")
         
         # Create csv output file
-        self._filename = 'data/BMN_' +date+'_.csv'
+        self._filename = 'data/BMN_' + ''.join(start_date.split('-')) + '_' + ''.join(end_date.split('-')) + '.csv'
+        #self._filename = r"C:\Users\8460P\Desktop\Master\TIPOLOGIA Y CICLO DE VIDA DATOS\BMN_.csv"
+        
+         # Inicializamos fechas como datetime
+        self.start_date = dt.datetime.strptime(str(start_date), "%Y-%m-%d")
+        self.end_date = dt.datetime.strptime(str(end_date), "%Y-%m-%d")
+        
+        # Si la fecha de inicio es mayor que la fecha fin las intercambiamos
+        if self.start_date > self.end_date: self.start_date, self.end_date = self.end_date, self.start_date
         
         # Check robot.txt file
         if self.does_url_exist(self.URL_BASE_ROBOT) == False:
