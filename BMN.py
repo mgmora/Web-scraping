@@ -21,7 +21,7 @@ class BMNdata():
     DELAY = 10
     TIMEOUT = 20
     
-    def __init__(self, start_date='2019-04-09', end_date='2019-05-01'):
+    def __init__(self, start_date='2019-04-09', end_date='2019-04-10'):
         """
         Iniciliza la clase BMNdata a partir de una lista de variables objetivo
         ejecutando el webscrapping de los datos en bolsamadrid.es
@@ -33,7 +33,6 @@ class BMNdata():
         
         # Create csv output file
         self._filename = 'data/BMN_' + ''.join(start_date.split('-')) + '_' + ''.join(end_date.split('-')) + '.csv'
-        #self._filename = r"C:\Users\8460P\Desktop\Master\TIPOLOGIA Y CICLO DE VIDA DATOS\BMN_.csv"
         
          # Inicializamos fechas como datetime
         self.start_date = dt.datetime.strptime(str(start_date), "%Y-%m-%d")
