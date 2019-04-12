@@ -73,6 +73,7 @@ class BMNdata():
         minimos = []
         fechas = []
         horas = []
+        Difs_Anno_2019 = []
         
         if indicesTable != []:
             
@@ -117,8 +118,12 @@ class BMNdata():
                 # Horas
                 hora = data[7].text
                 horas.append(hora)
+                
+                # Diferencia con año 2019
+                Dif_Año_2019 = data[8].text
+                Difs_Anno_2019.append(Dif_Año_2019)
         
-        cols = ['Nombres', 'Anteriores', 'Ultimos', 'Difs', 'Maximos', 'Minimos', 'Fechas', 'Horas']
+        cols = ['Nombres', 'Anteriores', 'Ultimos', 'Difs', 'Maximos', 'Minimos', 'Fechas', 'Horas', 'Difs_Anno_2019']
         
         
         # Init dataframe
@@ -129,7 +134,8 @@ class BMNdata():
                            'Maximos': maximos,
                            'Minimos': minimos,
                            'Fechas': fechas,
-                           'Horas': horas})[cols]
+                           'Horas': horas,
+                           'Difs_Anno_2019': Difs_Anno_2019})[cols]
         
         return df
     
