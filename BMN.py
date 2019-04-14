@@ -5,6 +5,7 @@ Created on 4 abr. 2019
 '''
 # Import Libraries
 import requests
+import os
 from bs4 import BeautifulSoup
 import time
 import datetime as dt
@@ -21,33 +22,56 @@ class BMNdata():
     DELAY = 10
     TIMEOUT = 20
     
-    def __init__(self, start_date='2019-04-09', end_date='2019-04-10'):
+    def __init__(self, start_date='2019-04-14', end_date='2019-04-15'):
         """
         Iniciliza la clase BMNdata a partir de una lista de variables objetivo
         ejecutando el webscrapping de los datos en bolsamadrid.es
         """
         # Timeout init 
-        self._tlast = time.clock()
-        #date = datetime.date.today().strftime("%Y_%B_%d_%I_%M_%p")
-        #date = date.replace(",", "_")
+        self._tnow = 0
+        self._tstart_dat = ""
+        self._tstart_hor= ""
+        self._tlast_dat = ""
+        self._tlast_hor= ""
+        # Get current date
+        self._current = datetime.datetime.now()
         
         # Create csv output file
         self._filename = 'data/BMN_' + ''.join(start_date.split('-')) + '_' + ''.join(end_date.split('-')) + '.csv'
         
-         # Inicializamos fechas como datetime
+         # Init dates as timeStamp
         self.start_date = dt.datetime.strptime(str(start_date), "%Y-%m-%d")
         self.end_date = dt.datetime.strptime(str(end_date), "%Y-%m-%d")
         
-        # Si la fecha de inicio es mayor que la fecha fin las intercambiamos
+        # If start_date > end_date swap 
         if self.start_date > self.end_date: self.start_date, self.end_date = self.end_date, self.start_date
         
-        # Check robot.txt file
-        if self.does_url_exist(self.URL_BASE_ROBOT) == False:
-            #launch webScraping
-            self.__execute()
+        if self._current < self.start_date or self._current > self.end_date:
+            print("Current date:" + str(self._current) +" should be between Start date:" + str(self.start_date) + " and End date:" + str(self.end_date))
+            print("Please change start date and end date parameters !!!")
+        while self._current >= self.start_date and self._current <= self.end_date:
         
-    #check if exists robot.txt    
+            # Check robot.txt file
+            if self.does_url_exist(self.URL_BASE_ROBOT) == False:
+                #launch webScraping
+                self.__execute()
+            
+            #Sleep for TIMEOUT
+            time.sleep(self.TIMEOUT) 
+            
+            # Get current date
+            self._current = datetime.datetime.now()
+        
+            
     def does_url_exist(self, url):
+        
+        #set tlast to avoid block
+        self._tlast = time.clock()
+        
+        # check delay 
+        if self._tnow > 0 and (self._tnow-self._tlast) < self.DELAY: 
+            time.sleep(self.DELAY - (self._tnow-self._tlast))  
+        
         try: 
             r = requests.head(url)
             if r.status_code < 400:
@@ -137,10 +161,15 @@ class BMNdata():
                            'Horas': horas,
                            'Difs_Anno_2019': Difs_Anno_2019})[cols]
         
+        self._tlast_dat = fecha
+        self._tlast_hor= hora
+        
         return df
     
     def __execute(self):
         
+        #Get now time
+        self._tnow = time.clock()
         # Launch Webscraping
         ret = self.__launchWebScraping()
         
@@ -153,9 +182,20 @@ class BMNdata():
         # Parse xml to dataFrame
         df = self.__getDataframe(indicesTable)
         
-        # Save dataFrame into file
-        print("Creating " + self._filename + " file..." )
-        df.to_csv(self._filename)
+        #Check if data changed
+        if self._tstart_dat != self._tlast_dat  or self._tlast_hor != self._tstart_hor:
+            # append if already exists
+            if os.path.exists(self._filename):
+                print("Appending dato to " + self._filename + " ..." )
+                df.to_csv(self._filename, mode='a', header=False)
+            # make a new file if not
+            else:
+                print("Creating " + self._filename + " file..." )
+                df.to_csv(self._filename) 
+            self._tstart_dat = self._tlast_dat
+            self._tstart_hor = self._tlast_hor  
+        else: 
+            print("No updates was found ..." ) 
 
     def __launchWebScraping(self):
         """
@@ -164,6 +204,12 @@ class BMNdata():
         
         # Settinh url
         url = self.URL_BASE
+        
+        self._tnow = time.clock()
+        
+        # check delay 
+        if (self._tnow-self._tlast) < self.DELAY: 
+            time.sleep(self.DELAY - (self._tnow-self._tlast))            
         
         try:
             # launche request for spicific timeout
@@ -187,7 +233,7 @@ class BMNdata():
             tries = 0
             # wait and retry it
             if tries < 2:
-                time.sleep(10)
+                time.sleep(self.TIMEOUT)
                 self.__execute()
                 tries += 1
     
@@ -196,6 +242,6 @@ class BMNdata():
             tries = 0
             # wait and retry it
             if tries < 2:
-                time.sleep(10)
+                time.sleep(self.TIMEOUT)
                 self.__execute()
                 tries += 1
