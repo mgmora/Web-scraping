@@ -1,6 +1,6 @@
 # Práctica 1: Web scraping
 
-## Componenetes
+## Componentes
 
 - Mario Gutiérrez Calvo de Mora
 - Youness El Guennouni
