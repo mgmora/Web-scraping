@@ -1,5 +1,10 @@
 # Práctica 1: Web scraping
 
+## Componenetes
+
+- Mario Gutiérrez Calvo de Mora
+- Youness El Guennouni
+
 ## Descripción
 
 Práctica enmarcada dentro de la asignatura Tipología y ciclo de vida de los datos, correspondiente al máster en Data Science de la Universitat Oberta de Catalunya, mediante la que se genera un dataset con la información correspondiente a las fluctuaciones de los valores más importantes que contempla y maneja la Bolsa de Madrid. La mayor parte de los valores consta de las diferentes variantes del IBEX y otros índices.
