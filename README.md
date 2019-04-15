@@ -19,8 +19,8 @@ Práctica enmarcada dentro de la asignatura Tipología y ciclo de vida de los da
 
 ## Recursos
 
-	Subirats, L., Calvo, M. (2018). Web Scraping. Editorial UOC.
-	Masip, D. El lenguaje Python. Editorial UOC.
-	Creative Commons, Fecha de consulta: 12 de abril del 2019. URL:  https://creativecommons.org/licenses/.
-	Scikit learn, INRIA and others. URL: https://scikit-learn.org/stable/.
-	Python Software Foundation. URL: https://www.python.org/.
+	- Subirats, L., Calvo, M. (2018). Web Scraping. Editorial UOC.
+	- Masip, D. El lenguaje Python. Editorial UOC.
+	- Creative Commons, Fecha de consulta: 12 de abril del 2019. URL:  https://creativecommons.org/licenses/.
+	- Scikit learn, INRIA and others. URL: https://scikit-learn.org/stable/.
+	- Python Software Foundation. URL: https://www.python.org/.
